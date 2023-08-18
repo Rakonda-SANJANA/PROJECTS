@@ -1,0 +1,77 @@
+from tkinter import*
+import qrcode
+from PIL import Image,ImageTk
+from resizeimage import resizeimage
+class Qr_generator:
+    def __init__(self,root):
+        self.root=root
+        self.root.geometry("900x500+200+50")
+        self.root.title("QR Generator")
+        self.root.resizable(False,False)
+
+        title =Label(self.root,text="  QR Code Generator",font=("times new roman",40),bg='#053246',fg='white',anchor='w').place(x=0,y=0,relwidth=1)
+        
+
+#----student details window----
+#variables
+        self.var_stu_code=StringVar()
+        self.var_stu_name=StringVar()
+        self.var_stu_dept=StringVar()
+        stu_Frame=Frame(self.root,bd=2,relief=RIDGE,bg='white')
+        stu_Frame.place(x=50,y=100,width=500,height=380)
+        stu_title=Label(stu_Frame,text="STUDENT DETAILS",font=("goudy old style",20),bg='#043256',fg='white').place(x=0,y=0,relwidth=1)
+        lbl_stu_code=Label(stu_Frame,text="STUDENT ID:",font=("times new roman",15,'bold'),bg='white').place(x=20,y=60)
+        lbl_stu_name=Label(stu_Frame,text="STUDENT NAME:",font=("times new roman",15,'bold'),bg='white').place(x=20,y=100)
+        lbl_stu_dept=Label(stu_Frame,text="DEPARTMENT:",font=("times new roman",15,'bold'),bg='white').place(x=20,y=140)
+
+        txt_stu_code=Entry(stu_Frame,font=("times new roman",15),textvariable=self.var_stu_code,bg='light green').place(x=200,y=60)
+        txt_stu_name=Entry(stu_Frame,font=("times new roman",15),textvariable=self.var_stu_name,bg='light green').place(x=200,y=100)
+        txt_stu_dept=Entry(stu_Frame,font=("times new roman",15),textvariable=self.var_stu_dept,bg='light green').place(x=200,y=140)
+
+        btn_generate=Button(stu_Frame,text='Generate QR',command=self.generate,font=('times new roman',18,'bold'),bg='#2196f3',fg='white').place(x=90,y=250,width=180,height=30)
+        btn_clear=Button(stu_Frame,text='CLEAR',command=self.clear,font=('times new roman',18,'bold'),bg='#607d8b',fg='white').place(x=290,y=250,width=120,height=30)
+
+        self.msg=''
+        self.lbl_msg=Label(stu_Frame,text=self.msg,font=("times new roman",20),bg='white',fg='green')
+        self.lbl_msg.place(x=0,y=320,relwidth=1)
+
+     
+        #----student QR window----
+        qr_Frame=Frame(self.root,bd=2,relief=RIDGE,bg='white')
+        qr_Frame.place(x=600,y=100,width=250,height=380)
+        qr_title=Label(qr_Frame,text="QR CODE",font=("goudy old style",20),bg='#043256',fg='white').place(x=0,y=0,relwidth=1)
+
+        self.qr_code=Label(qr_Frame,text="No QR available",font=("times new roman",15),bg='#3f51b5',fg='white')
+        self.qr_code.place(x=35,y=100,width=190,height=190)
+
+    def clear(self):
+        self.var_stu_code.set('')
+        self.var_stu_name.set('')
+        self.var_stu_dept.set('')
+         
+        self.msg=''
+        self.lbl_msg.config(text=self.msg)
+        self.qr_code.config(image='')
+
+
+    def generate(self):
+        if self.var_stu_code.get()==''or self.var_stu_name.get()=='' or self.var_stu_dept.get()=='':
+            self.msg='All fields to be entered!'
+            self.lbl_msg.config(text=self.msg,fg='red')
+        else:
+            qr_data=(f"Student ID:{self.var_stu_code.get()}\nStudent Name:{self.var_stu_name.get()}\nDepartment:{self.var_stu_dept.get()}")
+            qr_code=qrcode.make(qr_data)
+            #print(qr_code)
+            qr_code=resizeimage.resize_cover(qr_code,[180,180])
+            qr_code.save("student_qr/Stu_"+str(self.var_stu_code.get())+'.png')
+            #updating qr image
+            self.im=ImageTk.PhotoImage(file="student_qr/Stu_"+str(self.var_stu_code.get())+'.png')
+            self.qr_code.config(image=self.im)
+            self.msg='QR Generated Successfully!'
+            self.lbl_msg.config(text=self.msg,fg='green')
+            pass
+
+root=Tk()
+obj=Qr_generator(root)
+root.mainloop()
+
